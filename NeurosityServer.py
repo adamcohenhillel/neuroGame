@@ -7,12 +7,12 @@ def handle_client_connection(client_socket):
     try:
         print('Client connected')
         while True:
-            # Generate a random number and convert it to bytes
-            random_number = random.randint(1, 100)
-            message = str(random_number).encode('utf-8')
+            # Generate a random number between -1 and 1 and convert it to bytes
+            random_value = random.uniform(-1, 1)
+            message = str(random_value).encode('utf-8')
             client_socket.send(message)
-            # Wait for a second before sending the next number
-            time.sleep(1)
+            # Wait for 5 seconds before sending the next number
+            time.sleep(5)
     except Exception as e:
         print(f"Connection closed: {e}")
     finally:
