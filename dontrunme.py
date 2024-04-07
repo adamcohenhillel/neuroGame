@@ -8,7 +8,7 @@ neurosity = NeurositySDK({
 
 neurosity.login({
     "email": os.getenv("NEUROSITY_EMAIL"),
-    "password": os.getenv("NEUROSITY_PASSWORD")
+    "password": os.getenv("NEUROSITY_PASSWORD"),
 })
 
 def callback(data):

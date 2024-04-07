@@ -1,18 +1,72 @@
+import os
 import socket
 import threading
 import random
 import time
 
+from neurosity import NeurositySDK
+
+neurosity = NeurositySDK({
+    "device_id": os.getenv("NEUROSITY_DEVICE_ID"),
+})
+
+neurosity.login({
+    "email": os.getenv("NEUROSITY_EMAIL"),
+    "password": os.getenv("NEUROSITY_PASSWORD"),
+})
+
+
 def handle_client_connection(client_socket):
+
+    def leftArm(data):
+        print("data", data)
+        p = data["predictions"].pop()["probability"]
+        if p > 0.5:
+            mapped_value = ((p - 0.5) / (1 - 0.5)) * 100
+            sn = f"0,-{mapped_value}".encode('utf-8')
+            client_socket.send(sn)
+            print(sn)
+        else:
+            message = str(0).encode('utf-8')
+            client_socket.send(message)
+    
+    def moveForward(data):
+        print("data", data)
+        p = data["predictions"].pop()["probability"]
+        if p > 0.5:
+            sn = f"{p},0".encode('utf-8')
+            client_socket.send(sn)
+            print(sn)
+        else:
+            message = str(0).encode('utf-8')
+            client_socket.send(message)
+    
+    def mentalMath(data):
+        print("data", data)
+        p = data["predictions"].pop()["probability"]
+        if p > 0.5:
+            mapped_value = ((p - 0.5) / (1 - 0.5)) * 100
+            sn = f"0,{mapped_value}".encode('utf-8')
+            client_socket.send(sn)
+            print(sn)
+        else:
+            message = str(0).encode('utf-8')
+            client_socket.send(message)
+
+    unsubscribe = neurosity.kinesis("leftArm", leftArm)
+    unsubscribe = neurosity.kinesis("leftHandPinch", leftArm)
+    unsubscribe2 = neurosity.kinesis("moveForward", moveForward)
+    unsubscribe3 = neurosity.kinesis("mentalMath", mentalMath)
+    # unsubscribe2 = neurosity.kinesis("leftHandPinch", callback)
+
     try:
         print('Client connected')
         while True:
             # Generate a random number between -1 and 1 and convert it to bytes
-            random_value = random.uniform(-1, 1)
-            message = str(random_value).encode('utf-8')
-            client_socket.send(message)
+            print("waiting...")
+            client_socket.send("0,0".encode('utf-8'))
             # Wait for 5 seconds before sending the next number
-            time.sleep(5)
+            time.sleep(1)
     except Exception as e:
         print(f"Connection closed: {e}")
     finally:
@@ -39,5 +93,5 @@ def start_server(host, port):
         server.close()
 
 if __name__ == "__main__":
-    HOST, PORT = '127.0.0.1', 8080
+    HOST, PORT = '0.0.0.0', 8080
     start_server(HOST, PORT)
