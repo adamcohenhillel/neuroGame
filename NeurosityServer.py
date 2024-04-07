@@ -18,6 +18,7 @@ neurosity.login({
 
 def handle_client_connection(client_socket):
 
+    current = "0,-100".encode('utf-8')
     def leftArm(data):
         print("data", data)
         p = data["predictions"].pop()["probability"]
